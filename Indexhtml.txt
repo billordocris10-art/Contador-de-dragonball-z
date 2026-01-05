@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBZ Scouter Z - Ultimate Edition</title>
+    <style>
+        :root {
+            --dbz-orange: #ff9800;
+            --ki-blue: #00d4ff;
+            --ki-aura: rgba(0, 212, 255, 0.6);
+            --damage-aura: rgba(255, 62, 62, 0.7);
+        }
+
+        body {
+            background-color: #050505;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .battle-arena {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .player-card {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #333;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Efectos de Aura */
+        .aura-active { box-shadow: 0 0 40px 15px var(--ki-aura); border-color: var(--ki-blue); }
+        .aura-damage { box-shadow: 0 0 40px 15px var(--damage-aura); border-color: #ff3e3e; animation: shake 0.2s 3; }
+
+        @keyframes shake {
+            0% { transform: translate(3px, 3px); }
+            50% { transform: translate(-3px, -3px); }
+            100% { transform: translate(3px, -3px); }
+        }
+
+        .header-inputs {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        h2 { color: var(--dbz-orange); margin: 0; font-size: 1.2rem; }
+
+        .max-hp-setup {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .max-hp-setup input {
+            width: 60px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #555;
+            color: #00ffcc;
+            text-align: center;
+        }
+
+        .health-bar-container {
+            width: 100%;
+            height: 30px;
+            background: #111;
+            border: 2px solid #555;
+            margin: 15px 0;
+            transform: skew(-15deg);
+            overflow: hidden;
+        }
+
+        .health-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #adff2f);
+            transition: width 0.4s ease-out;
+        }
+
+        .hp-text { font-size: 1.4rem; font-weight: bold; color: #00ffcc; margin-bottom: 10px; }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .input-box { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 10px; text-transform: uppercase; color: #888; }
+        
+        input[type="number"] {
+            background: #000;
+            border: 1px solid #444;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .atk-btn { background: #e74c3c; color: white; }
+        .heal-btn { background: #2ecc71; color: white; }
+        
+        .footer-note { font-size: 10px; color: #444; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1 style="color: var(--dbz-orange); text-shadow: 2px 2px #000;">SCOUTER Z-CONTROL</h1>
+
+    <div class="battle-arena">
+        <div class="player-card" id="card-p1">
+            <div class="header-inputs">
+                <h2 contenteditable="true">GUERRERO 1</h2>
+                <div class="max-hp-setup">
+                    MAX HP: <input type="number" id="max-p1" value="10000" onchange="updateMax('p1')">
+                </div>
+            </div>
+            
+            <div class="hp-text" id="text-p1">10000 / 10000</div>
+            
+            <div class="health-bar-container">
+                <div class="health-fill" id="bar-p1"></div>
+            </div>
+
+            <div class="control-panel">
+                <div class="input-box">
+                    <label>Daño de Ataque</label>
+                    <input type="number" id="dmg-p1" value="1000">
+                    <button class="atk-btn" onclick="action('p1', 'damage')">¡GOLPE!</button>
+                </div>
+                <div class="input-box">
+                    <label>Senzu Bean</label>
+                    <input type="number" id="heal-p1" value="2000">
+                    <button class="heal-btn" onclick="action('p1', 'heal')">CURAR</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="player-card" id="card-p2">
+            <div class="header-inputs">
+                <h2 contenteditable="true">GUERRERO 2</h2>
+                <div class="max-hp-setup">
+                    MAX HP: <input type="number" id="max-p2" value="10000" onchange="updateMax('p2')">
+                </div>
+            </div>
+            
+            <div class="hp-text" id="text-p2">10000 / 10000</div>
+            
+            <div class="health-bar-container">
+                <div class="health-fill" id="bar-p2"></div>
+            </div>
+
+            <div class="control-panel">
+                <div class="input-box">
+                    <label>Daño de Ataque</label>
+                    <input type="number" id="dmg-p2" value="1000">
+                    <button class="atk-btn" onclick="action('p2', 'damage')">¡GOLPE!</button>
+                </div>
+                <div class="input-box">
+                    <label>Senzu Bean</label>
+                    <input type="number" id="heal-p2" value="2000">
+                    <button class="heal-btn" onclick="action('p2', 'heal')">CURAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="footer-note">Toca los nombres para cambiarlos. Cambia MAX HP para reiniciar la vida.</p>
+
+    <script>
+        const stats = {
+            p1: { hp: 10000, max: 10000 },
+            p2: { hp: 10000, max: 10000 }
+        };
+
+        // Generador de Sonidos Sintetizados (Para que no fallen links externos)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'damage') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+            } else {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+            }
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function updateMax(player) {
+            const newMax = parseInt(document.getElementById(`max-${player}`).value) || 100;
+            stats[player].max = newMax;
+            stats[player].hp = newMax; // Reinicia vida al cambiar max
+            updateDisplay(player);
+        }
+
+        function action(player, type) {
+            const card = document.getElementById(`card-${player}`);
+            const dmgVal = parseInt(document.getElementById(`dmg-${player}`).value) || 0;
+            const healVal = parseInt(document.getElementById(`heal-${player}`).value) || 0;
+            
+            if (type === 'damage') {
+                stats[player].hp -= dmgVal;
+                playSound('damage');
+                triggerEffect(card, 'aura-damage');
+            } else {
+                stats[player].hp += healVal;
+                playSound('heal');
+                triggerEffect(card, 'aura-active');
+            }
+
+            if (stats[player].hp < 0) stats[player].hp = 0;
+            if (stats[player].hp > stats[player].max) stats[player].hp = stats[player].max;
+
+            updateDisplay(player);
+        }
+
+        function triggerEffect(el, cls) {
+            el.classList.remove('aura-active', 'aura-damage');
+            void el.offsetWidth;
+            el.classList.add(cls);
+            setTimeout(() => el.classList.remove(cls), 800);
+        }
+
+        function updateDisplay(player) {
+            const p = stats[player];
+            const bar = document.getElementById(`bar-${player}`);
+            const text = document.getElementById(`text-${player}`);
+            const percent = (p.hp / p.max) * 100;
+
+            bar.style.width = percent + "%";
+            text.innerText = `${p.hp} / ${p.max}`;
+
+            if (percent < 25) bar.style.background = "#ff3e3e";
+            else if (percent < 50) bar.style.background = "#f1c40f";
+            else bar.style.background = "linear-gradient(90deg, #2ecc71, #adff2f)";
+        }
+    </script>
+</body>
+</html>
